@@ -10,9 +10,10 @@ provider "kubernetes" {
 }
 
 locals {
-  availability_zones     = var.availability_zones != "" ? compact(split(",", var.availability_zones)) : data.aws_availability_zones.available.names
-  network_resource_count = var.high_availability ? 3 : 2
-  oidc_sub               = "${replace(aws_iam_openid_connect_provider.cluster.url, "https://", "")}:sub"
+  availability_zones       = var.availability_zones != "" ? compact(split(",", var.availability_zones)) : data.aws_availability_zones.available.names
+  network_resource_count   = var.high_availability ? 3 : 2
+  oidc_sub                 = "${replace(aws_iam_openid_connect_provider.cluster.url, "https://", "")}:sub"
+  gpu_tag_disabled_regions = ["eu-north-1"]
 }
 
 data "aws_availability_zones" "available" {
@@ -155,7 +156,10 @@ resource "aws_launch_template" "cluster" {
   }
 
   dynamic "tag_specifications" {
-    for_each = toset(["instance", "volume", "elastic-gpu", "network-interface", "spot-instances-request"])
+    for_each = toset(
+      concat(["instance", "volume", "network-interface", "spot-instances-request"],
+        contains(local.gpu_tag_disabled_regions, data.aws_region.current.name) ? [] : ["elastic-gpu"]
+    ))
     content {
       resource_type = tag_specifications.key
       tags          = local.tags
@@ -273,4 +277,28 @@ resource "null_resource" "wait_eks_addons" {
     aws_eks_addon.coredns,
     aws_eks_addon.kube_proxy
   ]
+}
+
+resource "aws_autoscaling_schedule" "scaledown" {
+  count = length(var.schedule_rack_scale_down) > 6 ? (var.high_availability ? 3 : 1) : 0
+
+  scheduled_action_name  = "scaledown${count.index}"
+  min_size               = 0
+  max_size               = 0
+  desired_capacity       = 0
+  recurrence             = var.schedule_rack_scale_down
+  time_zone              = "UTC"
+  autoscaling_group_name = flatten(aws_eks_node_group.cluster[count.index].resources[*].autoscaling_groups[*].name)[0]
+}
+
+resource "aws_autoscaling_schedule" "scaleup" {
+  count = length(var.schedule_rack_scale_up) > 6 ? (var.high_availability ? 3 : 1) : 0
+
+  scheduled_action_name  = "scaleup${count.index}"
+  min_size               = 1
+  max_size               = 100
+  desired_capacity       = 1
+  recurrence             = var.schedule_rack_scale_up
+  time_zone              = "UTC"
+  autoscaling_group_name = flatten(aws_eks_node_group.cluster[count.index].resources[*].autoscaling_groups[*].name)[0]
 }
