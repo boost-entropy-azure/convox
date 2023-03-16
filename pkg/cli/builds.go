@@ -108,6 +108,14 @@ func build(rack sdk.Interface, c *stdcli.Context, development bool) (*structs.Bu
 
 	dir := coalesce(c.Arg(0), ".")
 
+	if data, err := c.Execute("git", "-C", dir, "rev-parse", "HEAD"); err == nil {
+		opts.GitSha = options.String(strings.TrimSpace(string(data)))
+	}
+
+	if os.Getenv("TEST") == "true" {
+		opts.GitSha = nil
+	}
+
 	if c.Bool("external") {
 		return buildExternal(rack, c, opts)
 	}
@@ -244,7 +252,7 @@ func buildExternal(rack sdk.Interface, c *stdcli.Context, opts structs.BuildCrea
 		bopts.Terminal = false
 	}
 
-	bb, err := builder.New(rack, bopts)
+	bb, err := builder.New(rack, bopts, &builder.Docker{})
 	if err != nil {
 		return nil, err
 	}

@@ -187,7 +187,7 @@ func (p *Provider) ProcessLogs(app, pid string, opts structs.LogsOptions) (io.Re
 }
 
 func (p *Provider) streamProcessLogs(w io.WriteCloser, app, pid string, opts structs.LogsOptions) {
-	defer w.Close()
+	defer w.Close() // skipcq
 
 	lopts := &ac.PodLogOptions{
 		Follow:     true,
@@ -270,11 +270,6 @@ func (p *Provider) ProcessRun(app, service string, opts structs.ProcessRunOption
 		return nil, errors.WithStack(err)
 	}
 
-	// ns, err := p.Cluster.CoreV1().Namespaces().Get(p.Namespace, am.GetOptions{})
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	release := common.DefaultString(opts.Release, "")
 
 	if release == "" {
@@ -286,26 +281,40 @@ func (p *Provider) ProcessRun(app, service string, opts structs.ProcessRunOption
 		release = a.Release
 	}
 
+	ans := map[string]string{}
+	if service == "build" {
+		for idx := 0; idx < len(s.Containers); idx++ {
+			// assign the build container a BestEffor QoS to avoid eating all compute resources
+			s.Containers[idx].Resources = ac.ResourceRequirements{}
+			s.Containers[idx].SecurityContext = &ac.SecurityContext{SeccompProfile: &ac.SeccompProfile{Type: ac.SeccompProfileTypeUnconfined}}
+			if opts.Privileged != nil && *opts.Privileged {
+				s.Containers[idx].SecurityContext = &ac.SecurityContext{Privileged: options.Bool(true)}
+				ans[fmt.Sprintf("container.apparmor.security.beta.kubernetes.io/%s", s.Containers[idx].Name)] = "unconfined"
+			}
+		}
+		s.RestartPolicy = ac.RestartPolicyNever
+	}
+
+	pod := &ac.Pod{
+		ObjectMeta: am.ObjectMeta{
+			Annotations:  ans,
+			GenerateName: fmt.Sprintf("%s-", service),
+			Labels: map[string]string{
+				"app":     app,
+				"rack":    p.Name,
+				"release": release,
+				"service": service,
+				"system":  "convox",
+				"type":    "process",
+				"name":    service,
+			},
+		},
+		Spec: *s,
+	}
+
 	pd, err := p.Cluster.CoreV1().Pods(p.AppNamespace(app)).Create(
 		context.TODO(),
-		&ac.Pod{
-			ObjectMeta: am.ObjectMeta{
-				Annotations: map[string]string{
-					// "iam.amazonaws.com/role": ns.ObjectMeta.Annotations["convox.aws.role"],
-				},
-				GenerateName: fmt.Sprintf("%s-", service),
-				Labels: map[string]string{
-					"app":     app,
-					"rack":    p.Name,
-					"release": release,
-					"service": service,
-					"system":  "convox",
-					"type":    "process",
-					"name":    service,
-				},
-			},
-			Spec: *s,
-		},
+		pod,
 		am.CreateOptions{},
 	)
 	if err != nil {
@@ -369,7 +378,7 @@ func (p *Provider) podSpecFromService(app, service, release string) (*ac.PodSpec
 		VolumeMounts:  []ac.VolumeMount{},
 	}
 
-	vs := []ac.Volume{}
+	var vs []ac.Volume
 
 	c.VolumeMounts = append(c.VolumeMounts, ac.VolumeMount{
 		Name:      "ca",
@@ -521,7 +530,7 @@ func (p *Provider) podSpecFromRunOptions(app, service string, opts structs.Proce
 	}
 
 	if opts.Volumes != nil {
-		vs := []string{}
+		var vs []string
 
 		for from, to := range opts.Volumes {
 			vs = append(vs, fmt.Sprintf("%s:%s", from, to))
@@ -608,7 +617,7 @@ func (p *Provider) processFromPod(pd ac.Pod) (*structs.Process, error) {
 		}
 	}
 
-	ports := []string{}
+	var ports []string
 	for _, p := range c.Ports {
 		if p.HostPort == 0 {
 			ports = append(ports, fmt.Sprint(p.ContainerPort))
