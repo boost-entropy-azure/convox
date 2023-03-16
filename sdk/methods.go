@@ -379,7 +379,8 @@ func (c *Client) FilesUpload(app string, pid string, r io.Reader) error {
 	return err
 }
 
-func (c *Client) Initialize(opts structs.ProviderOptions) error {
+// skipcq
+func (*Client) Initialize(opts structs.ProviderOptions) error {
 	err := fmt.Errorf("not available via api")
 	return err
 }
@@ -655,7 +656,8 @@ func (c *Client) RegistryList() (structs.Registries, error) {
 	return v, err
 }
 
-func (c *Client) RegistryProxy(ctx *stdapi.Context) error {
+// skipcq
+func (*Client) RegistryProxy(ctx *stdapi.Context) error {
 	err := fmt.Errorf("not available via api")
 	return err
 }
@@ -800,6 +802,31 @@ func (c *Client) ResourceList(app string) (structs.Resources, error) {
 	return v, err
 }
 
+func (c *Client) Runtimes(rackOrgSlug string) (structs.Runtimes, error) {
+	var err error
+
+	ro := stdsdk.RequestOptions{Headers: stdsdk.Headers{}, Params: stdsdk.Params{}, Query: stdsdk.Query{}}
+
+	var v structs.Runtimes
+
+	err = c.Get(fmt.Sprintf("/racks/%s/runtimes", rackOrgSlug), ro, &v)
+
+	return v, err
+}
+
+func (c *Client) RuntimeAttach(rackOrgSlug string, opts structs.RuntimeAttachOptions) error {
+	var err error
+
+	ro, err := stdsdk.MarshalOptions(opts)
+	if err != nil {
+		return err
+	}
+
+	err = c.Put(fmt.Sprintf("/racks/%s/runtimes", rackOrgSlug), ro, nil)
+
+	return err
+}
+
 func (c *Client) ServiceList(app string) (structs.Services, error) {
 	var err error
 
@@ -850,7 +877,8 @@ func (c *Client) ServiceUpdate(app string, name string, opts structs.ServiceUpda
 	return err
 }
 
-func (c *Client) Start() error {
+// skipcq
+func (*Client) Start() error {
 	err := fmt.Errorf("not available via api")
 	return err
 }
@@ -867,7 +895,8 @@ func (c *Client) SystemGet() (*structs.System, error) {
 	return v, err
 }
 
-func (c *Client) SystemInstall(w io.Writer, opts structs.SystemInstallOptions) (string, error) {
+// skipcq
+func (*Client) SystemInstall(w io.Writer, opts structs.SystemInstallOptions) (string, error) {
 	err := fmt.Errorf("not available via api")
 	return "", err
 }
@@ -1038,7 +1067,8 @@ func (c *Client) SystemResourceUpdate(name string, opts structs.ResourceUpdateOp
 	return v, err
 }
 
-func (c *Client) SystemUninstall(name string, w io.Writer, opts structs.SystemUninstallOptions) error {
+// skipcq
+func (*Client) SystemUninstall(name string, w io.Writer, opts structs.SystemUninstallOptions) error {
 	err := fmt.Errorf("not available via api")
 	return err
 }
@@ -1056,7 +1086,8 @@ func (c *Client) SystemUpdate(opts structs.SystemUpdateOptions) error {
 	return err
 }
 
-func (c *Client) Workers() error {
+// skipcq
+func (*Client) Workers() error {
 	err := fmt.Errorf("not available via api")
 	return err
 }

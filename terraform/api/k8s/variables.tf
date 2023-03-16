@@ -6,6 +6,12 @@ variable "authentication" {
   default = true
 }
 
+# skipcd
+variable "buildkit_enabled" {
+  default = false
+  type    = bool
+}
+
 variable "docker_hub_authentication" {
   default = null
   type    = string

@@ -2,6 +2,10 @@ variable "availability_zones" {
   default = ""
 }
 
+variable "buildkit_enabled" {
+  default = false
+}
+
 variable "cert_duration" {
   default = "2160h"
   type    = string
@@ -46,6 +50,11 @@ variable "internal_router" {
 
 variable "image" {
   default = "convox/convox"
+}
+
+variable "imds_http_tokens" {
+  type    = string
+  default = "optional"
 }
 
 variable "internet_gateway_id" {
