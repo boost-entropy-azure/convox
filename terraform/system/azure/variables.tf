@@ -1,7 +1,3 @@
-variable "buildkit_enabled" {
-  default = true
-}
-
 variable "cert_duration" {
   default = "2160h"
   type    = string
@@ -45,8 +41,17 @@ variable "release" {
   default = ""
 }
 
+variable "settings" {
+  default = ""
+}
+
 variable "syslog" {
   default = ""
+}
+
+variable "telemetry" {
+  type   = bool
+  default = false
 }
 
 variable "whitelist" {
