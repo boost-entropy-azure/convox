@@ -1,6 +1,6 @@
 ---
 kind: CronJob
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 metadata:
   namespace: {{.Namespace}}
   name: timer-{{.Timer.Name}}
@@ -23,6 +23,9 @@ spec:
             release: {{.Release.Id}}
             service: {{.Service.Name}}
             type: timer
+            {{ range keyValue .Service.Labels }}
+            {{.Key}}: "{{.Value}}"
+            {{ end }}
         spec:
           {{ with .Resolver }}
           dnsPolicy: "None"

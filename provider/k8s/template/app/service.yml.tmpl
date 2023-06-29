@@ -6,6 +6,9 @@ metadata:
   labels:
     type: env
     service: {{.Service.Name}}
+    {{ range keyValue .Service.Labels }}
+    {{.Key}}: "{{.Value}}"
+    {{ end }}
 type: Opaque
 data:
   {{ range keyValue .Environment }}
@@ -24,6 +27,9 @@ metadata:
   labels:
     service: {{.Service.Name}}
     type: serviceaccount
+    {{ range keyValue .Service.Labels }}
+    {{.Key}}: "{{.Value}}"
+    {{ end }}
 ---
 apiVersion: apps/v1
 kind: {{ if .Service.Agent.Enabled }} DaemonSet {{ else }} Deployment {{ end }}
@@ -38,6 +44,9 @@ metadata:
     app: {{.App.Name}}
     type: service
     service: {{.Service.Name}}
+    {{ range keyValue .Service.Labels }}
+    {{.Key}}: "{{.Value}}"
+    {{ end }}
 spec:
   selector:
     matchLabels:
@@ -72,6 +81,9 @@ spec:
         service: {{.Service.Name}}
         release: {{.Release.Id}}
         type: service
+        {{ range keyValue .Service.Labels }}
+        {{.Key}}: "{{.Value}}"
+        {{ end }}
     spec:
       {{ with .Resolver }}
       dnsPolicy: "None"
@@ -133,6 +145,7 @@ spec:
           {{ end }}
         {{ end }}
         {{ with .Service.Port.Port }}
+        {{ if not (eq $.Service.Port.Scheme "GRPC") }}
         readinessProbe:
           httpGet:
             path: "{{$.Service.Health.Path}}"
@@ -143,6 +156,16 @@ spec:
           timeoutSeconds: {{$.Service.Health.Timeout}}
           successThreshold: 1
           failureThreshold: 3
+        {{ else if $.Service.GrpcHealthEnabled }}
+        livenessProbe:
+          grpc:
+            port: {{.}}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 15
+          successThreshold: 1
+          failureThreshold: 5
+        {{ end }}
         {{ end }}
         ports:
         {{ with .Service.Port.Port }}
@@ -206,6 +229,9 @@ metadata:
   name: {{.Service.Name}}
   labels:
     service: {{.Service.Name}}
+    {{ range keyValue .Service.Labels }}
+    {{.Key}}: "{{.Value}}"
+    {{ end }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -264,6 +290,9 @@ metadata:
     service: {{.Service.Name}}
     rack: {{.Rack}}
     system: convox
+    {{ range keyValue .Service.Labels }}
+    {{.Key}}: "{{.Value}}"
+    {{ end }}
 spec:
   type: ClusterIP
   selector:
