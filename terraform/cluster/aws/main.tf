@@ -67,7 +67,7 @@ resource "random_id" "node_group" {
   byte_length = 8
 
   keepers = {
-    dummy               = "1"
+    dummy               = "2"
     node_capacity_type  = var.node_capacity_type
     node_disk           = var.node_disk
     node_type           = var.node_type
@@ -84,7 +84,7 @@ resource "random_id" "build_node_group" {
   byte_length = 8
 
   keepers = {
-    dummy               = "1"
+    dummy               = "2"
     node_disk           = var.node_disk
     node_type           = var.build_node_type
     private_subnets_ids = join("-", local.private_subnets_ids)
@@ -103,7 +103,6 @@ resource "aws_eks_node_group" "cluster" {
   ami_type        = var.gpu_type ? "AL2_x86_64_GPU" : var.arm_type ? "AL2_ARM_64" : "AL2_x86_64"
   capacity_type   = var.node_capacity_type == "MIXED" ? count.index == 0 ? "ON_DEMAND" : "SPOT" : var.node_capacity_type
   cluster_name    = aws_eks_cluster.cluster.name
-  instance_types  = split(",", random_id.node_group.keepers.node_type)
   node_group_name = "${var.name}-${var.private ? data.aws_subnet.private_subnet_details[count.index].availability_zone : data.aws_subnet.public_subnet_details[count.index].availability_zone}-${count.index}${random_id.node_group.hex}"
   node_role_arn   = random_id.node_group.keepers.role_arn
   subnet_ids      = [var.private ? local.private_subnets_ids[count.index] : local.public_subnets_ids[count.index]]
@@ -156,7 +155,7 @@ resource "aws_eks_node_group" "cluster-build" {
   }
 
   launch_template {
-    id      = aws_launch_template.cluster.id
+    id      = aws_launch_template.cluster-build.id
     version = "$Latest"
   }
 
@@ -225,6 +224,35 @@ resource "local_file" "kubeconfig" {
 }
 
 resource "aws_launch_template" "cluster" {
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_type = "gp3"
+      volume_size = random_id.node_group.keepers.node_disk
+    }
+  }
+
+  metadata_options {
+    http_tokens = var.imds_http_tokens
+  }
+
+  instance_type = split(",", random_id.node_group.keepers.node_type)[0]
+
+  dynamic "tag_specifications" {
+    for_each = toset(
+      concat(["instance", "volume", "network-interface", "spot-instances-request"],
+        var.gpu_tag_enable ? ["elastic-gpu"] : []
+    ))
+    content {
+      resource_type = tag_specifications.key
+      tags          = local.tags
+    }
+  }
+
+  key_name = var.key_pair_name != "" ? var.key_pair_name : null
+}
+
+resource "aws_launch_template" "cluster-build" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
