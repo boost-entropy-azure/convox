@@ -1,3 +1,7 @@
+variable "access_log_retention_in_days" {
+  default = "7"
+}
+
 variable "availability_zones" {
   default = ""
 }
@@ -27,7 +31,7 @@ variable "cidr" {
 // https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html
 variable "coredns_version" {
   type    = string
-  default = "v1.9.3-eksbuild.2"
+  default = "v1.9.3-eksbuild.7"
 }
 
 variable "docker_hub_username" {
@@ -36,6 +40,16 @@ variable "docker_hub_username" {
 
 variable "docker_hub_password" {
   default = ""
+}
+
+variable "fluentd_disable" {
+  type    = bool
+  default = false
+}
+
+variable "disable_image_manifest_cache" {
+  type    = bool
+  default = false
 }
 
 variable "gpu_tag_enable" {
@@ -88,12 +102,12 @@ variable "key_pair_name" {
 // https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html
 variable "kube_proxy_version" {
   type    = string
-  default = "v1.25.6-eksbuild.1"
+  default = "v1.26.9-eksbuild.2"
 }
 
 variable "k8s_version" {
   type    = string
-  default = "1.25"
+  default = "1.26"
 }
 
 variable "max_on_demand_count" {
@@ -195,10 +209,9 @@ variable "vpc_id" {
 // https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html
 variable "vpc_cni_version" {
   type    = string
-  default = "v1.12.6-eksbuild.2"
+  default = "v1.13.3-eksbuild.1"
 }
 
 variable "whitelist" {
   default = "0.0.0.0/0"
 }
-

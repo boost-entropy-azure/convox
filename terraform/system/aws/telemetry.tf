@@ -3,6 +3,7 @@
 
 locals {
   telemetry_map = {
+    access_log_retention_in_days = var.access_log_retention_in_days
     availability_zones = var.availability_zones
     build_node_enabled = var.build_node_enabled
     build_node_min_count = var.build_node_min_count
@@ -10,8 +11,10 @@ locals {
     cert_duration = var.cert_duration
     cidr = var.cidr
     coredns_version = var.coredns_version
+    disable_image_manifest_cache = var.disable_image_manifest_cache
     docker_hub_password = var.docker_hub_password
     docker_hub_username = var.docker_hub_username
+    fluentd_disable = var.fluentd_disable
     gpu_tag_enable = var.gpu_tag_enable
     high_availability = var.high_availability
     idle_timeout = var.idle_timeout
@@ -50,15 +53,18 @@ locals {
     }
 
   telemetry_default_map = {
+    access_log_retention_in_days = "7"
     availability_zones = ""
     build_node_enabled = "false"
     build_node_min_count = "0"
     build_node_type = ""
     cert_duration = "2160h"
     cidr = "10.1.0.0/16"
-    coredns_version = "v1.9.3-eksbuild.2"
+    coredns_version = "v1.9.3-eksbuild.7"
+    disable_image_manifest_cache = "false"
     docker_hub_password = ""
     docker_hub_username = ""
+    fluentd_disable = "false"
     gpu_tag_enable = "false"
     high_availability = "true"
     idle_timeout = "3600"
@@ -67,9 +73,9 @@ locals {
     imds_http_tokens = "optional"
     internal_router = "false"
     internet_gateway_id = ""
-    k8s_version = "1.25"
+    k8s_version = "1.26"
     key_pair_name = ""
-    kube_proxy_version = "v1.25.6-eksbuild.1"
+    kube_proxy_version = "v1.26.9-eksbuild.2"
     max_on_demand_count = "100"
     min_on_demand_count = "1"
     name = ""
@@ -91,7 +97,7 @@ locals {
     syslog = ""
     tags = ""
     telemetry = "false"
-    vpc_cni_version = "v1.12.6-eksbuild.2"
+    vpc_cni_version = "v1.13.3-eksbuild.1"
     vpc_id = ""
     whitelist = "0.0.0.0/0"
     }
