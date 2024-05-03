@@ -53,6 +53,7 @@ The following environment variables are required:
 | **cert_duration**        | **2160h**              | Certification renew period                                                                                     | 
 | **cidr**                 | **10.1.0.0/16**        | CIDR range for VPC                                                                                             |
 | **convox_domain_tls_cert_disable** | false        | Disable convox domain(*.convox.cloud) tls certificate generation for services |
+| **efs_csi_driver_enable**       | **false**              | Enable efs csi driver to use AWS EFS volume feature |
 | **fluentd_disable**       | **false**              | Disable fluentd installation in the rack |
 | **gpu_tag_enable**       | **false**              | Enable gpu tagging. Some aws region doesn't support gpu tagging  |
 | **high_availability**    | **true**               | Setting this to "false" will create a cluster with less reduntant resources for cost optimization              |
@@ -67,6 +68,7 @@ The following environment variables are required:
 | **node_capacity_type**   | **on_demand**          | Can be either "on_demand", "spot" or "mixed". Spot will use AWS spot instances for the cluster nodes.  Mixed will create one node group with on demand instances, and the other 2 with spot instances.  Use mixed with the min_on_demand_count and max_on_demand_count parameters to control the minimum acceptable service availability should all spot instances become unavailable.  |
 | **node_disk**            | **20**                 | Node disk size in GB                                                                                           |
 | **node_type**            | **t3.small**           | Node instance type.|
+| **node_max_unavailable_percentage**            |           | Node max unavailable percentage during node update. Value must be between 1 to 100.|
 | **pod_identity_agent_enable** | **false**           | Enable AWS pod identity|
 | **schedule_rack_scale_down**   |                        | Rack scale down schedule is specified by the user following the Unix cron syntax format. Example: "0 18 * * 5". The supported cron expression format consists of five fields separated by white spaces: [Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]. More details on the CRON format can be found in (Crontab)[http://crontab.org/] and (examples)[https://crontab.guru/examples.html]. The time is calculated in **UTC**. |
 | **schedule_rack_scale_up**    |                        | Rack scale up schedule is specified by the user following the Unix cron syntax format.Example: "0 0 * * 0". The supported cron expression format consists of five fields separated by white spaces: [Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]. More details on the CRON format can be found in (Crontab)[http://crontab.org/] and (examples)[https://crontab.guru/examples.html]. The time is calculated in **UTC**. |

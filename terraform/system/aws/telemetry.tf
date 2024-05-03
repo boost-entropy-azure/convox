@@ -17,6 +17,8 @@ locals {
     disable_image_manifest_cache = var.disable_image_manifest_cache
     docker_hub_password = var.docker_hub_password
     docker_hub_username = var.docker_hub_username
+    efs_csi_driver_enable = var.efs_csi_driver_enable
+    efs_csi_driver_version = var.efs_csi_driver_version
     fluentd_disable = var.fluentd_disable
     gpu_tag_enable = var.gpu_tag_enable
     high_availability = var.high_availability
@@ -36,6 +38,7 @@ locals {
     nlb_security_group = var.nlb_security_group
     node_capacity_type = var.node_capacity_type
     node_disk = var.node_disk
+    node_max_unavailable_percentage = var.node_max_unavailable_percentage
     node_type = var.node_type
     pod_identity_agent_enable = var.pod_identity_agent_enable
     pod_identity_agent_version = var.pod_identity_agent_version
@@ -74,6 +77,8 @@ locals {
     disable_image_manifest_cache = "false"
     docker_hub_password = ""
     docker_hub_username = ""
+    efs_csi_driver_enable = "false"
+    efs_csi_driver_version = "v2.0.1-eksbuild.1"
     fluentd_disable = "false"
     gpu_tag_enable = "false"
     high_availability = "true"
@@ -93,6 +98,7 @@ locals {
     nlb_security_group = ""
     node_capacity_type = "on_demand"
     node_disk = "20"
+    node_max_unavailable_percentage = "0"
     node_type = "t3.small"
     pod_identity_agent_enable = "false"
     pod_identity_agent_version = "v1.2.0-eksbuild.1"

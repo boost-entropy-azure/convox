@@ -36,6 +36,16 @@ variable "coredns_version" {
   default = null
 }
 
+variable "efs_csi_driver_enable" {
+  type    = bool
+  default = false
+}
+
+variable "efs_csi_driver_version" {
+  type    = string
+  default = "v2.0.1-eksbuild.1"
+}
+
 variable "gpu_type" {
   default = false
 }
@@ -101,6 +111,11 @@ variable "node_capacity_type" {
 
 variable "node_disk" {
   default = 20
+}
+
+variable "node_max_unavailable_percentage" {
+  type    = number
+  default = 0
 }
 
 variable "node_type" {
