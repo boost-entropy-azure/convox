@@ -31,6 +31,7 @@ type Service struct {
 	Liveness           ServiceLiveness       `yaml:"liveness,omitempty"`
 	Image              string                `yaml:"image,omitempty"`
 	Init               bool                  `yaml:"init,omitempty"`
+	InitContainer      *InitContainer        `yaml:"initContainer,omitempty"`
 	Internal           bool                  `yaml:"internal,omitempty"`
 	InternalRouter     bool                  `yaml:"internalRouter,omitempty"`
 	IngressAnnotations ServiceAnnotations    `yaml:"ingressAnnotations,omitempty"`
@@ -51,6 +52,12 @@ type Service struct {
 	VolumeOptions      []VolumeOption        `yaml:"volumeOptions,omitempty"`
 	Whitelist          string                `yaml:"whitelist,omitempty"`
 	AccessControl      AccessControlOptions  `yaml:"accessControl,omitempty"`
+}
+
+type InitContainer struct {
+	Image         string         `yaml:"image,omitempty"`
+	Command       string         `yaml:"command,omitempty"`
+	VolumeOptions []VolumeOption `yaml:"volumeOptions,omitempty"`
 }
 
 type VolumeOption struct {
@@ -255,7 +262,7 @@ func (s Service) EnvironmentDefaults() map[string]string {
 	defaults := map[string]string{}
 
 	for _, e := range s.Environment {
-		switch parts := strings.Split(e, "="); len(parts) {
+		switch parts := strings.SplitN(e, "=", 2); len(parts) {
 		case 2:
 			defaults[parts[0]] = parts[1]
 		}
@@ -269,7 +276,7 @@ func (s Service) EnvironmentKeys() string {
 	kh := map[string]bool{}
 
 	for _, e := range s.Environment {
-		kh[strings.Split(e, "=")[0]] = true
+		kh[strings.SplitN(e, "=", 2)[0]] = true
 	}
 
 	keys := []string{}
