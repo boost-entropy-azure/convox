@@ -419,6 +419,9 @@ resource "kubernetes_deployment" "ingress-nginx-internal" {
   metadata {
     namespace = var.namespace
     name      = "ingress-nginx-internal"
+    annotations = {
+      "managed-by" = "convox"
+    }
   }
 
   spec {
@@ -432,6 +435,10 @@ resource "kubernetes_deployment" "ingress-nginx-internal" {
 
     template {
       metadata {
+        annotations = {
+          "managed-by" = "convox"
+        }
+
         labels = {
           app            = "system"
           name           = "ingress-nginx-internal"
