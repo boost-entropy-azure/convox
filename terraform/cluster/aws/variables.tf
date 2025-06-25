@@ -172,6 +172,11 @@ variable "nvidia_device_plugin_enable" {
   default = false
 }
 
+variable "nvidia_device_time_slicing_replicas" {
+  type    = number
+  default = 0
+}
+
 variable "pod_identity_agent_enable" {
   type    = bool
   default = false

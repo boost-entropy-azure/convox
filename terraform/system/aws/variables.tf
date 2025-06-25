@@ -81,6 +81,11 @@ variable "fluentd_disable" {
   default = false
 }
 
+variable "disable_convox_resolver" {
+  type    = bool
+  default = false
+}
+
 variable "disable_image_manifest_cache" {
   type    = bool
   default = false
@@ -225,6 +230,11 @@ variable "nginx_image" {
 
 variable "nvidia_device_plugin_enable" {
   default = false
+}
+
+variable "nvidia_device_time_slicing_replicas" {
+  type    = number
+  default = 0
 }
 
 variable "pdb_default_min_available_percentage" {
