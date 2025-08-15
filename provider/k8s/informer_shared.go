@@ -49,7 +49,7 @@ func (p *Provider) RunSharedInformer(stopCh chan struct{}) {
 
 	// convox custom informers
 	convoxInformerFactory := cinformer.NewFilteredSharedInformerFactory(p.Convox, 0, am.NamespaceAll, func(opts *am.ListOptions) {
-		opts.LabelSelector = "!marked"
+		opts.LabelSelector = "!convox.io/marked"
 	})
 	buildInformer := convoxInformerFactory.Convox().V1().Builds()
 	releaseInformer := convoxInformerFactory.Convox().V1().Releases()
